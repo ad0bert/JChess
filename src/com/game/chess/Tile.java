@@ -1,13 +1,11 @@
 package com.game.chess;
 
-import com.game.chess.Figure.Type;
-
 public class Tile {
     private Figure figure = null;
 
     public Tile(int i, int j, Player player) {
         if (player != null) {
-            this.figure = new Figure(Type.getTypeByPos(i, j), player);
+            this.figure = FigureFactory.createFigure(i, j, player);
         }
     }
 

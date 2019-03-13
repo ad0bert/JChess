@@ -13,17 +13,22 @@ public class Board {
         this.initField();
     }
 
+    public void resetBoard() {
+        this.currPlayer = this.white;
+        this.initField();
+    }
+
     private void initField() {
         for (int i = 0; i < this.FIELD_SIZE; ++i) {
             this.field[i] = new Tile[this.FIELD_SIZE];
             for (int j = 0; j < this.FIELD_SIZE; ++j) {
-                Player currPlayer = null;
+                Player initPlayer = null;
                 if (i < 2) {
-                    currPlayer = this.black;
+                    initPlayer = this.black;
                 } else if (i > 5) {
-                    currPlayer = this.white;
+                    initPlayer = this.white;
                 }
-                this.field[i][j] = new Tile(i, j, currPlayer);
+                this.field[i][j] = new Tile(i, j, initPlayer);
             }
         }
     }
@@ -33,6 +38,13 @@ public class Board {
     }
 
     public void move(Position from, Position to) {
+        if ((from.getX() > this.FIELD_SIZE) || (to.getX() > this.FIELD_SIZE) || (from.getY() > this.FIELD_SIZE)
+                || (to.getY() > this.FIELD_SIZE) || (from.getX() < 0) || (to.getX() < 0) || (from.getY() < 0)
+                || (to.getY() < 0)) {
+            System.out.println("Input out of Range! Try Again.");
+            return;
+        }
+
         Tile curr = this.field[from.getX()][from.getY()];
         Tile next = this.field[to.getX()][to.getY()];
 
@@ -48,21 +60,32 @@ public class Board {
             System.out.println("You cannot capture your own figures");
             return;
         }
-        Figure toMove = curr.getFigure();
 
-        if (!toMove.inRange(from, to)) {
-            System.out.println("Illegal move!");
+        Figure toMove = curr.getFigure();
+        Figure toRemove = next.getFigure();
+
+        if (!toMove.move(from, to, this.field)) {
             return;
         }
-
         curr.setFigure(null);
         next.setFigure(toMove);
+
+        if (isCheck()) {
+            curr.setFigure(toMove);
+            next.setFigure(toRemove);
+            System.out.println("King is in Check after this move!");
+            return;
+        }
 
         if (this.currPlayer.equals(this.white)) {
             this.currPlayer = this.black;
         } else {
             this.currPlayer = this.white;
         }
+    }
+
+    private boolean isCheck() {
+        return false;
     }
 
     @Override
